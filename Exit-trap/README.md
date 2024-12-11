@@ -1,4 +1,5 @@
-Defination - Exit status
+Defination - Exit status:
+--------------------------
 
 In Shell scripting, The "exit command is used to terminate a script with a specific exit code. The exit code is a numeric value that indicates the sucess or failure of the script or command. Exit codes are particularly useful for signaling to other script.
 
