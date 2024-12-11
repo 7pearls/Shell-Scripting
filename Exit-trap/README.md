@@ -1,0 +1,156 @@
+Defination - Exit status
+
+In Shell scripting, The "exit command is used to terminate a script with a specific exit code. The exit code is a numeric value that indicates the sucess or failure of the script or command. Exit codes are particularly useful for signaling to other script.
+
+COMMON EXIT codes
+	exit 0 : Indicates successfull execution
+	exit 1 or higher : Indicates failure or an error. This value can vary depending on the error type
+
+Example:
+
+#!/bin/bash
+
+echo "Script executed successfully."
+exit 0
+
+Note: This script exits with status code of 0, signaling success
+
+exit 2 or exit 3 -  custom Error Codes
+
+#!/bin/bash
+
+if [ -z "$1" ];then
+	echo "Error: No argument provided."
+	exit 2
+fi
+
+if [ ! -f "$1" ];then
+	echo "Error: File not found."
+	exit 3
+fi
+
+echo "File exists."
+exit 0
+
+Note -
+exit 2 : Indicates that no argument was provided
+exit 3 : Indicates that the filedoes not exists
+
+exit 0 : Indicates that everything ran successfully.
+
+Checking Exit Codes
+-------------------
+
+Exit codes can be checked using the $? variable immediately after a script or command is run :
+
+./myscript.sh
+echo "Exit code: $?"
+
+USE CASES:
+---------
+
+1. System Commands : Shell commands return exit codes that can be checked.
+
+For instance:
+
+gerp "text" file.txtx
+echo "Exit code: $?" # 0 if found ,1 if not found, 2 for errors
+
+2. Error Handling:
+
+./myscript.sh || echo "The script failed with code $?"
+
+3. Chaining Commands:
+
+./myscrip.sh && echo "Success" || echo "Failure"
+
+Conventions for Exit Codes:
+---------------------------
+While exit code greater than 0, typically indiactes erros, some codes are commonly reserved:
+
+	0	: Success
+	1 	:General error
+	2	:Misuse of shell built-ins
+	126	:Command invked can not execute
+	127	:Command not found
+	130	:Script terminated bt Ctrl_C (SIGINT)
+
+
+You can use cutom exit codes(2, 3 4, etc) to represent specific errors in your scripts for better debugging or automation
+
+
+EXIT TRAP
+---------
+The EXIT trap in shell scripting is a mechanism to execute specific commands or clean-up operations when scripts exits, regardless of how it terminates(success, failure or interruption). This is implemeneted using the trap command
+
+example:
+
+trap 'commands' EXIT
+
+
+The EXIT signals is triggered whenever the scrip exits
+
+Exp:1
+
+#!/bin/bash
+
+# Define a cleanup function
+cleanup() {
+    echo "Cleaning up temporary files..."
+    rm -f /tmp/tempfile
+}
+
+# Set up the exit trap
+trap cleanup EXIT
+
+# Script logic
+echo "Creating temporary file..."
+touch /tmp/tempfile
+echo "Doing work..."
+sleep 2
+
+# When the script exits, the cleanup function will be called
+
+
+
+Example 2: Handling Errors Gracefully
+
+#!/bin/bash
+
+# Exit immediately if a command exits with a non-zero status
+set -e
+
+# Cleanup function
+cleanup() {
+    echo "Error occurred. Cleaning up..."
+    rm -f /tmp/tempfile
+}
+
+# Setup the trap for script exit
+trap cleanup EXIT
+
+# Intentional error for demonstration
+echo "Creating a temporary file..."
+touch /tmp/tempfile
+echo "This will cause an error."
+ls /nonexistent/file
+
+
+Key Points
+----------
+
+	1. trap is versatile: You can use it with other signals, such as SIGINT or SIGTERM, to handle specific types of script interruptions.
+	2. EXIT is universal: The EXIT signal ensures the specified commands run regardless of whether the script ends normally or due to an error.
+	3. Releasing resources: It's commonly used to clean up temporary files, stop background processes, or reset system settings.
+ 
+
+Combining Multiple Traps
+------------------------
+
+You can set multiple traps in a script, but they will overwrite each other unless explicitly combined. For example:
+
+
+trap 'cleanup; echo "Goodbye!"' EXIT
+
+
+This approach ensures a robust and clean exit for your scripts!
